@@ -86,6 +86,7 @@ server.post("/", (payload, res) => {
                         var ipaddr = '';
                         if (config.manual_ip) {
                             ipaddr = device.ipaddr;
+                        }
                     }
                     else {
                         // Look for WiFi addresses since it's quick
