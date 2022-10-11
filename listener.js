@@ -79,11 +79,10 @@ server.post("/", (payload, res) => {
 
             // REOPEN THE GAME
             case "reopen":
-                if (device.name == target.device) {
-                    if (device.reboot_cmd) {
-                        var command = `./reopen.sh ${device.name}`
+                if (device.name == target.device && device.reboot_cmd) {
+                    var command = `./reopen.sh ${device.name}`
                     }
-                else if (device.name == target.device) {
+                else if (device.name == target.device && !device.reboot_cmd) {
                     var ipaddr = '';
                     if (config.manual_ip) {
                         ipaddr = device.ipaddr;
