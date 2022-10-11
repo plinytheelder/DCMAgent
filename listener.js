@@ -132,9 +132,12 @@ server.post("/", (payload, res) => {
                 }
                 break;
 
-            // REAPPLY THE SAM PROFILE
+            // REAPPLY THE SAM PROFILE OR REPURPOSE FOR OTHER STUFF
             case "profile":
-                if (!config.use_ios_deploy && device.name == target.device) {
+                if (device.name == target.device && device.reboot_cmd) {
+                    var command = `./unlock.sh ${device.name}`
+                    }
+                else if (!config.use_ios_deploy && device.name == target.device) {
                     // REMOVE THE SAM PROFILE
                     var profile = await cli_exec("cfgutil -e " + device.ecid + " -K org.der -C org.crt remove-profile com.apple.configurator.singleappmode", "device_command");
                     if (profile.hasError) {
