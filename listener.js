@@ -82,58 +82,56 @@ server.post("/", (payload, res) => {
                 if (device.name == target.device) {
                     if (device.reboot_cmd) {
                         var command = `./reopen.sh ${device.name}`
-                    } 
+                    }
+                else if (device.name == target.device) {
+                    var ipaddr = '';
+                    if (config.manual_ip) {
+                        ipaddr = device.ipaddr;
+                    }
                     else {
-                        var ipaddr = '';
-                        if (config.manual_ip) {
-                            ipaddr = device.ipaddr;
-                            }
-                        }
-                        else {
-                            // Look for WiFi addresses since it's quick
-                            ipaddr = await cli_exec("ping -t 1 " + device.name, 'device_ipaddr');
-                            if (ipaddr == '') {
-                                // Look for tethered addresses and blanks. This takes a while
-                                ipaddr = await cli_exec("grep -A1 \"" + device.name.replace('+', '.*') + "\" /var/db/dhcpd_leases", 'device_ipaddr');
-                                }
-                            }
-                        }
-                        const reopen = await cli_exec("curl --connect-timeout 10 -m 10 http://" + ipaddr + ":8080/restart", "device_command");
-
-                        // THERE WAS AN ERROR WITH CURL
-                        if (reopen.hasError) {
-                            console.error("[DCM] [listener.js] [" + getTime("log") + "] Failed to reopen game for " + device.name + " : " + device.uuid + ".");
-                            if (reopen.error.toString().includes("Connection refused")) {
-                                console.error("[DCM] [listener.js] [" + getTime("log") + "] The connection was refused to IP " + ipaddr + ".");
-                            }
-                            else if (reopen.error.toString().includes("Operation timed out")) {
-                                console.error("[DCM] [listener.js] [" + getTime("log") + "] The connection timed out for IP " + ipaddr + ".");
-                            }
-                            else if (reopen.error.toString().includes("Connection reset by peer")) {
-                                console.error("[DCM] [listener.js] [" + getTime("log") + "] The connection was disconnected for IP " + ipaddr + ".");
-                            }
-                            else {
-                                console.error(reopen.error);
-                            }
-
-                            // SEND ERROR TO DCM
-                            res.json({
-                                status: 'error',
-                                node: config.name,
-                                error: 'Failed to reopen game.'
-                            });
-                        }
-                        else {
-                            // RESTART WAS SUCCESSFUL
-                            console.log("[DCM] [listener.js] [" + getTime("log") + "] Reopened the game for " + device.name + " : " + device.uuid + ".");
-
-                            // SEND CONFIRMATION TO DCM
-                            res.json({
-                                status: 'ok'
-                            });
+                        // Look for WiFi addresses since it's quick
+                        ipaddr = await cli_exec("ping -t 1 " + device.name, 'device_ipaddr');
+                        if (ipaddr == '') {
+                            // Look for tethered addresses and blanks. This takes a while
+                            ipaddr = await cli_exec("grep -A1 \"" + device.name.replace('+', '.*') + "\" /var/db/dhcpd_leases", 'device_ipaddr');
                         }
                     }
-                    break;
+                    const reopen = await cli_exec("curl --connect-timeout 10 -m 10 http://" + ipaddr + ":8080/restart", "device_command");
+
+                    // THERE WAS AN ERROR WITH CURL
+                    if (reopen.hasError) {
+                        console.error("[DCM] [listener.js] [" + getTime("log") + "] Failed to reopen game for " + device.name + " : " + device.uuid + ".");
+                        if (reopen.error.toString().includes("Connection refused")) {
+                            console.error("[DCM] [listener.js] [" + getTime("log") + "] The connection was refused to IP " + ipaddr + ".");
+                        }
+                        else if (reopen.error.toString().includes("Operation timed out")) {
+                            console.error("[DCM] [listener.js] [" + getTime("log") + "] The connection timed out for IP " + ipaddr + ".");
+                        }
+                        else if (reopen.error.toString().includes("Connection reset by peer")) {
+                            console.error("[DCM] [listener.js] [" + getTime("log") + "] The connection was disconnected for IP " + ipaddr + ".");
+                        }
+                        else {
+                            console.error(reopen.error);
+                        }
+
+                        // SEND ERROR TO DCM
+                        res.json({
+                            status: 'error',
+                            node: config.name,
+                            error: 'Failed to reopen game.'
+                        });
+                    }
+                    else {
+                        // RESTART WAS SUCCESSFUL
+                        console.log("[DCM] [listener.js] [" + getTime("log") + "] Reopened the game for " + device.name + " : " + device.uuid + ".");
+
+                        // SEND CONFIRMATION TO DCM
+                        res.json({
+                            status: 'ok'
+                        });
+                    }
+                }
+                break;
 
             // REAPPLY THE SAM PROFILE
             case "profile":
