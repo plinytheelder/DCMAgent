@@ -82,10 +82,12 @@ server.post("/", (payload, res) => {
                 if (device.name == target.device) {
                     if (device.reboot_cmd) {
                         var command = `./reopen.sh ${device.name}`
-                    } else {
+                    } 
+                    else {
                         var ipaddr = '';
                         if (config.manual_ip) {
                             ipaddr = device.ipaddr;
+                            }
                         }
                         else {
                             // Look for WiFi addresses since it's quick
