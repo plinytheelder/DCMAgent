@@ -95,6 +95,7 @@ server.post("/", (payload, res) => {
                             if (ipaddr == '') {
                                 // Look for tethered addresses and blanks. This takes a while
                                 ipaddr = await cli_exec("grep -A1 \"" + device.name.replace('+', '.*') + "\" /var/db/dhcpd_leases", 'device_ipaddr');
+                                }
                             }
                         }
                         const reopen = await cli_exec("curl --connect-timeout 10 -m 10 http://" + ipaddr + ":8080/restart", "device_command");
