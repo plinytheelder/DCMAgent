@@ -48,7 +48,7 @@ server.post("/", (payload, res) => {
             case "restart":
                 if (device.name == target.device) {
                     if (device.reboot_cmd) {
-                        var command = device.reboot_cmd
+                        var command = `./restart.sh ${device.name}`
                     } else {
                         var command = `idevicediagnostics${isWindows() ? ".exe" : ""} -u ${device.uuid} restart`
                     }
@@ -80,9 +80,12 @@ server.post("/", (payload, res) => {
             // REOPEN THE GAME
             case "reopen":
                 if (device.name == target.device) {
-                    var ipaddr = '';
-                    if (config.manual_ip) {
-                        ipaddr = device.ipaddr;
+                    if (device.reboot_cmd) {
+                        var command = `./reopen.sh ${device.name}`
+                    } else {
+                        var ipaddr = '';
+                        if (config.manual_ip) {
+                            ipaddr = device.ipaddr;
                     }
                     else {
                         // Look for WiFi addresses since it's quick
